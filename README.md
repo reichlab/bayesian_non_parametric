@@ -4,8 +4,12 @@ Temporary repo for BNP research...lots of scratch work
 
 Currently working:
 
-### Bayesian Neural Network (FFNN)
+Bayesian Neural Network (FFNN)
 
-### Dirichlet Dependent Density Regression 
+Dirichlet Dependent Density Regression 
 
-### Gaussian Process Regression
+ Gaussian Process Regression
+ 
+ and finally!
+ 
+ Bayesian Recurrent Neural Network!
