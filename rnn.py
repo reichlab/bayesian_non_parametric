@@ -84,7 +84,7 @@ def run(n_samples=100):
         pm.fit(n=20000, method=inference)
         # It is time to set `s` to zero
         s.set_value(0)
-        approx = pm.fit(n=30000)
+        approx = pm.fit(n=30000,method='fullrank_advi')
         trace = approx.sample(draws=5000)
     print (trace['w_in_1'].mean(axis=0))
     h_t = np.ones((3,), dtype=np.float64)
