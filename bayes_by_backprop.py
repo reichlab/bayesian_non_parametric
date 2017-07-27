@@ -1,13 +1,19 @@
+import os
+os.environ["THEANO_FLAGS"] = "optimizer=None"
 import theano
-from theano import tensor as T
+from theano import tensor as T,printing 
 import numpy as np
 from scipy.misc import imsave
 from theano.tensor.shared_randomstreams import RandomStreams
+from theano.tensor.nlinalg import matrix_inverse, det
+from matplotlib import pyplot as plt
+
+
+
 srng = RandomStreams(seed=234)
 
 def log_gaussian(x, mu, sigma):
     return -0.5 * np.log(2 * np.pi) - T.log(T.abs_(sigma)) - (x - mu) ** 2 / (2 * sigma ** 2)
-
 
 def log_gaussian_logsigma(x, mu, logsigma):
     return -0.5 * np.log(2 * np.pi) - logsigma / 2. - (x - mu) ** 2 / (2. * T.exp(logsigma))
@@ -32,18 +38,18 @@ def model(X, w_h, w_o, mu, p):
 
 
 '''Training data'''
-trX = teX = trY =teY = np.ones(10).reshape(10,1)
-sigma_prior = T.exp(-1.7)
+sigma_prior_val = .6
+sigma_prior = T.constant(sigma_prior_val)
+sigma_prior_vec =  T.constant(np.repeat(sigma_prior_val,10).reshape((10,1)))
 
-
-X = T.fmatrix()
+X = T.matrix()
 Y = T.fmatrix()
 
 '''Variational Params'''
-mu = init_weights((1,1))
-p = init_weights((1,1))
-rv_n = srng.normal((1,1))
-w = mu + T.dot(T.log(1+T.exp(p)),rv_n)  
+mu = init_weights((10,1))
+p = init_weights((10,1))
+rv_n = srng.normal((10,1))
+w = T.add(mu,T.log(T.add(np.ones((10,1)),T.exp(p)))*rv_n  )
 
 
 '''Weight matrices'''
@@ -77,21 +83,40 @@ def step(u_t, h_tm1, W, W_in, W_out):
 '''Cost function'''
 
 cost = log_gaussian(w,mu,T.log(1+T.exp(p)))-log_gaussian(w,0,sigma_prior)- \
-log_gaussian(Y, y, sigma_prior)
+log_gaussian(Y, y, sigma_prior_vec)
 cost =cost.sum()
 
 
-params = [W, W_in,W_out,mu,p]
+params = [W, W_in,W_out,mu,p,w]
 updates = sgd(cost, params)
 
 train = theano.function(inputs=[X, Y], outputs=cost, updates=updates, allow_input_downcast=True)
 predict = theano.function(inputs=[X], outputs=[y,p], allow_input_downcast=True)
 
+trX = np.arange(50,60,1,dtype=np.float32)
+trY = np.add(trX[:5],np.random.normal(0,.01,5))
+trY = np.concatenate([trY,np.add(trX[5:],np.random.normal(0,200,5))],axis=0)
+
+trX = trX.reshape((10,1))/np.max(trX)
+trY = trY.reshape((10,1))/np.max(trY)
+
+print (trX)
+print (trY)
+
+fig, ax = plt.subplots(figsize=(14,5))
+
 for i in range(100):
     for example in range(len(trX)):
-        cost = train([trX[example]], [trY[example]])
+        cost = train(trX, trY)
 output = predict(trX)
 mean = output[0]
 stdv = np.log(1+np.exp(output[1]))
-print (mean)
+ax.plot(trX,mean,color='b')
+ax.plot(trX,mean+2*stdv,alpha=.5)
+ax.plot(trX,mean-2*stdv,alpha=.5)
+ax.plot(trX,trY,color='r')
+ax.set_ylim([-5,5])
+plt.show()
 print (stdv)
+print (mean)
+print (trY)

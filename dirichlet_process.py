@@ -25,7 +25,7 @@ n_hidden = 5
 x, y = np.random.multivariate_normal(mean, cov, size).T
 data = []
 
-with open('article-disease-pred-with-kcde/data-raw/San_Juan_Training_Data.csv') as csvfile:
+with open('../article-disease-pred-with-kcde/data-raw/San_Juan_Training_Data.csv') as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
         data.append(int(row['total_cases']))
@@ -119,18 +119,18 @@ with pm.Model() as model:
     alpha = pm.Normal('alpha', 0., 1.0, shape=K)
     beta = pm.Normal('beta', 0., 1.0, shape=K)
     v = norm_cdf(alpha + beta * x_lidar)
-    beta_sp  = pm.Beta('beta-sp',100,1,shape=K)
+    beta_sp  = pm.Beta('beta-sp',1,.2,shape=K)
     w = pm.Deterministic('w', stick_breaking(beta_sp*tt.ones_like(v)))
 
 
 with model:
     gamma = pm.Normal('gamma', 0., 1., shape=K)
-    delta = pm.Normal('delta', 0., 1., shape=K)
+    delta = pm.Normal('delta', 0., 10., shape=K)
     mu = pm.Deterministic('mu', gamma + delta * x_lidar)
 
 
 with model:
-    tau = pm.Gamma('tau', 1000., 1., shape=K)    
+    tau = pm.Gamma('tau', 1., 1., shape=K)    
     obs = pm.NormalMixture('obs', w, mu, tau=tau, observed=std_logratio)
 
 SAMPLES = 20000
