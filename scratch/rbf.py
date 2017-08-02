@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon May  2 16:09:31 2016
-
-@author: Rob Romijnders
-"""
 
 import numpy as np
 import tensorflow as tf
@@ -19,10 +14,6 @@ data__full = [4,5,4,3,6,2,4,5,10,6,8,2,6,17,23,13,21,28,24,20,40,27,42,33,43,37,
 from sklearn.cluster import KMeans
 # data__full = scale(data__full)
 data__ = data__full[:50]
-# print (data__full[50])
-# data__ = data__full[:50]
-# data__ = np.array(data__,dtype=np.float32)
-# data__ = data__.tolist()
 
 
 m = 1
@@ -30,8 +21,8 @@ train_target = []
 train_data = []
 test_data = []
 test_target = []
-for i in range(len(data__)):
-    train_data.append(data__[i-1])
+for i in range(1,len(data__)):
+    train_data.append([data__[i-1]])
     train_target.append(data__[i])
 
 print (np.array(train_data).shape)
@@ -39,15 +30,15 @@ print (np.array(train_data).shape)
 X_train = X_test = np.array(train_data,dtype=np.float32).reshape((-1,1))
 y_train = y_test =  np.array(train_target,dtype=np.float32).reshape((-1))
 
-kmeans = KMeans(init='k-means++', n_clusters=len(y_train)-2, n_init=10)
-kmeans.fit(np.array(y_train).reshape((-1,1)))
-centroids = kmeans.cluster_centers_.reshape((-1,))
-print (centroids)
+#kmeans = KMeans(init='k-means++', n_clusters=len(X_train)-1, n_init=10)
+#kmeans.fit(np.array(y_train).reshape((-1,1)))
+#centroids = kmeans.cluster_centers_.reshape((-1,))
+#print (centroids)
 
 """Hyper-parameters"""
 batch_size = 1            # Batch size for stochastic gradient descent
 test_size = batch_size      # Temporary heuristic. In future we'd like to decouple testing from batching
-num_centr = len(centroids)             # Number of "hidden neurons" that is number of centroids
+num_centr = len(X_train)             # Number of "hidden neurons" that is number of centroids
 max_iterations = 100000       # Max number of iterations
 learning_rate = 1e-3      # Learning rate
 num_classes = 1            # Number of target classes, 10 for MNIST
@@ -69,7 +60,7 @@ y_ = tf.placeholder('float', shape=[batch_size], name = 'Ground_truth')
 
 with tf.name_scope("Hidden_layer") as scope:
   #Centroids and var are the main trainable parameters of the first layer
-  centroids = tf.constant(centroids.reshape((-1,1)),dtype=tf.float32,name='centroids')
+  centroids = tf.constant(X_train,dtype=tf.float32,name='centroids')
   var = tf.Variable(tf.truncated_normal([num_centr],mean=var_rbf,stddev=5,dtype=tf.float32),name='RBF_variance')
 
   #For now, we collect the distanc
@@ -143,12 +134,14 @@ with tf.Session() as sess:
       batch_ind = np.random.choice(N,batch_size,replace=False)
       if i%100 == 1:
         #Measure train performance
-        result = sess.run([cost,accuracy,train_step,h],feed_dict={x:np.array(data__full[0]).reshape((-1,1)), y_: np.array(data__full[1]).reshape((1,))})
+        for test_points in range(49,60):
+          result = sess.run([cost,accuracy,train_step,h],feed_dict={x:np.array(data__full[test_points]).reshape((-1,1)), y_: np.array(data__full[test_points]).reshape((1,))})
 
-        acc = result[1]
-        print("Estimated accuracy at iteration %s of %s: %s" % (i,max_iterations, acc))
-        print (result[3],data__full[1],data__full[0])
-        step += 1
+          acc = result[1]
+         # print("Estimated accuracy at iteration %s of %s: %s" % (i,max_iterations, acc))
+          print (result[3],data__full[1],data__full[0])
+          step += 1
+        print ("=------------=\n")
       else:
         sess.run(train_step,feed_dict={x:np.array([X_train[batch_ind]]).reshape((-1,1)) \
           , y_: np.array([y_train[batch_ind]]).reshape((-1))})
