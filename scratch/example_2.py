@@ -21,17 +21,18 @@ axes.set_xlim([-5,5])
 axes.set_ylim([-5,5])
 param =1
 num_sample= 10
+total_size = 100
 for i in range(num_sample):
-	color = np.random.rand(3,1)	
-	Xtest = np.array(np.random.uniform(-5,5,size=100)).reshape((-1,1))
+	color = np.random.rand(3,1)
+	Xtest = np.array(np.random.uniform(-5,5,size=total_size)).reshape((-1,1))
 	K_ss = kernel(Xtest, Xtest, param)
-	draws = multivariate_normal.rvs(np.zeros(100),K_ss,size=1)
+	draws = multivariate_normal.rvs(np.zeros(total_size),K_ss,size=1)
 	draws = np.transpose(draws)
-	plt.scatter(Xtest,np.zeros(100),color='black',marker='x')
+	plt.scatter(Xtest,np.zeros(total_size),color='black',marker='x')
 	plt.pause(1)
-	list1, list2 = (list(t) for t in zip(*sorted(zip(Xtest.reshape((100)), draws))))	
+	list1, list2 = (list(t) for t in zip(*sorted(zip(Xtest.reshape((total_size)), draws))))
 	plt.plot(list1,list2,color=color)
-	plt.pause(2)
+	plt.pause(500)
 plt.show()
 
 

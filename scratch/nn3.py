@@ -14,7 +14,7 @@ def leapfrog(pos, vel, step):
     # from pos(t) and vel(t - eps/2), compute vel(t + eps / 2)
     dE_dpos = T.grad(energy_fn(pos).sum(), pos)
     new_vel = vel - step * dE_dpos
-    
+
     # from vel(t + eps / 2) compute pos(t + eps)
     new_pos = pos + step * new_vel
 
@@ -23,7 +23,7 @@ def leapfrog(pos, vel, step):
 
 
 def simulate_dynamics(initial_pos, initial_vel, stepsize, n_steps, energy_fn):
-    
+
 
     def leapfrog(pos, vel, step):
 
@@ -53,7 +53,7 @@ def simulate_dynamics(initial_pos, initial_vel, stepsize, n_steps, energy_fn):
             n_steps=n_steps - 1)
     final_pos = all_pos[-1]
     final_vel = all_vel[-1]
-    
+
     # NOTE: Scan always returns an updates dictionary, in case the
     # scanned function draws samples from a RandomStream. These
     # updates must then be used when compiling the Theano function, to
@@ -95,13 +95,13 @@ def hmc_move(s_rng, positions, energy_fn, stepsize, n_steps):
 
 
 def metropolis_hastings_accept(energy_prev, energy_next, s_rng):
-    
+
     ediff = energy_prev - energy_next
     return (T.exp(ediff) - s_rng.uniform(size=energy_prev.shape)) >= 0
 
 
 def kinetic_energy(vel):
-    
+
     return 0.5 * (vel ** 2)
 
 
@@ -165,7 +165,7 @@ class HMC_sampler(object):
  # used in geometric avg. 1.0 would be not moving at all
             avg_acceptance_slowness=0.9,
             seed=12345):
-        
+
         batchsize = shared_positions.shape[0]
 
         # allocate shared variables
@@ -229,21 +229,21 @@ def sampler_on_nd_gaussian(sampler_cls, burnin, n_samples, dim=5):
     D= 10
     # Define a covariance and mu for a gaussian
     x  = np.array([1,2,3], dtype=theano.config.floatX)
-    y  = np.array([1,2,3], dtype=theano.config.floatX)
+    y  = np.array([4,8,12], dtype=theano.config.floatX)
     # cov = np.array([[.005,0],[0,.005]], dtype=theano.config.floatX)
     # cov = (cov + cov.T) / 2.
     # cov_inv = np.linalg.inv(cov)
 
     # Define energy function for a multi-variate Gaussian
     def gaussian_energy(w):
-    	total_energy = 0 
-    	output_weights = w[3:]
-    	variance = w[5]
-    	for i in range(len(x)):
-    		 hidden_layer = T.tanh(w[0]*x[i] +w[1]*x[i] + w[2]*x[i])
-    		 output_layer = (output_weights[0]*hidden_layer+output_weights[1]*hidden_layer )
+        total_energy = 0
+        output_weights = w[3:]
+        variance = w[5]
+        for i in range(len(x)):
+             hidden_layer = T.tanh(w[0]*x[i] +w[1]*x[i] + w[2]*x[i])
+             output_layer = (output_weights[0]*hidden_layer+output_weights[1]*hidden_layer )
 
-    		 total_energy +=  (y[i]-output_layer)**2
+             total_energy +=  (y[i]-output_layer)**2
         return .5*(m_0 + len(x)*D)*T.log(total_energy+s_0)-T.log(s_0)
 
     # Declared shared random variable for positions
@@ -269,10 +269,10 @@ def sampler_on_nd_gaussian(sampler_cls, burnin, n_samples, dim=5):
     print('empirical_cov:\n', np.cov(samples.T))
     output = samples.mean(axis=0)
     for i in range(len(x)):
-    	hidden_layer = np.tanh(output[0]*x[i]+output[1]*x[i] + output[2]*x[i])
-    	output_weights = output[3:]
-    	output_ = (output_weights[0]*hidden_layer + output_weights[1]*hidden_layer)
-    	print (output_)
+        hidden_layer = np.tanh(output[0]*x[i]+output[1]*x[i] + output[2]*x[i])
+        output_weights = output[3:]
+        output_ = (output_weights[0]*hidden_layer + output_weights[1]*hidden_layer)
+        print (output_)
     return sampler
 
 def test_hmc():

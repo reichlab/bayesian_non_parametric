@@ -20,7 +20,7 @@ def normpdf(x, mean, sd):
     return num/denom
 
 def f(neurons):
-   
+
     weight_prior_1 = normpdf(x_next,0,1000)
 
     weight_prior_2 = normpdf(y_next,0,1000)
@@ -44,7 +44,7 @@ def main():
     x4 = np.arange(N,dtype=np.float)
     x5 = np.arange(N,dtype=np.float)
     x6 = np.arange(N,dtype=np.float)
-    
+
     x1[0] = .5
     x2[0] = .5
     x3[0] = .5
@@ -57,7 +57,7 @@ def main():
     counter = 0
     proposal_stdv=1
     for i in range(0, N-1):
-        
+
         move_1 = np.random.normal(x[i], proposal_stdv,size=1)
         move_2 =  np.random.normal(y[i], proposal_stdv,size=1)
         move_3 = np.random.normal(x[i], proposal_stdv,size=1)
@@ -68,10 +68,9 @@ def main():
         for n in range(len(neurons)):
             denom = f([x1[i],x2[i],x3[i],x4[i],x5[i],x6[i]])
             potential_ = neurons
-            potential_[n] = moves[n] 
+            potential_[n] = moves[n]
             if np.random.random_sample() <  min(1,f(potential)/ denom
-                        ):
-                x1[i+1] = move_1
+                        ): x1[i+1] = move_1
                 x2[i+1] = x2[i]
                 x3[i+1] = x3[i]
                 x4[i+1] = x4[i]
@@ -86,8 +85,8 @@ def main():
                 x5[i+1] = x5[i]
                 x6[i+1] = x6[i]
 
-        
-           
+
+
     print("acceptance fraction is ", counter/float(2*N))
     posterior_predictive = []
     for i in range(5000,N,1):

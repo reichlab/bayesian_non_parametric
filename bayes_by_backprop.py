@@ -1,7 +1,7 @@
 import os
 os.environ["THEANO_FLAGS"] = "optimizer=None"
 import theano
-from theano import tensor as T,printing 
+from theano import tensor as T,printing
 import numpy as np
 from scipy.misc import imsave
 from theano.tensor.shared_randomstreams import RandomStreams

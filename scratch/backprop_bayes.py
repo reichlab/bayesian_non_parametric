@@ -5,21 +5,62 @@
 # where x' = [x | 1] and W_1' is the matrix W_1 appended with a new row with elements b_1's.
 # Similarly, for h * W_2 + b_2
 import theano
+from theano.tensor.signal import pool
 from theano import tensor as T
 import numpy as np
 from sklearn import datasets
 from sklearn.cross_validation import train_test_split
 from theano.tensor.shared_randomstreams import RandomStreams
 from theano.sandbox.rng_mrg import MRG_RandomStreams
-from lasagne.updates import adam
 from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
 
-
+import sys
+sys.setrecursionlimit(50000)
 rnd = RandomStreams(seed=123)
 gpu_rnd = MRG_RandomStreams(seed=123)
 
+def adam(loss, all_params, learning_rate=0.001, b1=0.9, b2=0.999, e=1e-8,
+         gamma=1-1e-8):
+    """
+    ADAM update rules
+    Default values are taken from [Kingma2014]
+    References:
+    [Kingma2014] Kingma, Diederik, and Jimmy Ba.
+    "Adam: A Method for Stochastic Optimization."
+    arXiv preprint arXiv:1412.6980 (2014).
+    http://arxiv.org/pdf/1412.6980v4.pdf
+    """
+    updates = []
+    all_grads = theano.grad(loss, all_params)
+    alpha = learning_rate
+    t = theano.shared(np.float32(1))
+    b1_t = b1*gamma**(t-1)   #(Decay the first moment running average coefficient)
+
+    for theta_previous, g in zip(all_params, all_grads):
+        m_previous = theano.shared(np.zeros(theta_previous.get_value().shape,
+                                            dtype=theano.config.floatX))
+        v_previous = theano.shared(np.zeros(theta_previous.get_value().shape,
+                                            dtype=theano.config.floatX))
+
+        m = b1_t*m_previous + (1 - b1_t)*g                             # (Update biased first moment estimate)
+        v = b2*v_previous + (1 - b2)*g**2                              # (Update biased second raw moment estimate)
+        m_hat = m / (1-b1**t)                                          # (Compute bias-corrected first moment estimate)
+        v_hat = v / (1-b2**t)                                          # (Compute bias-corrected second raw moment estimate)
+        theta = theta_previous - (alpha * m_hat) / (T.sqrt(v_hat) + e) #(Update parameters)
+
+        updates.append((m_previous, m))
+        updates.append((v_previous, v))
+        updates.append((theta_previous, theta) )
+    updates.append((t, t + 1.))
+    return updates
+
 def log_gaussian(x, mu, sigma):
     return -0.5 * np.log(2 * np.pi) - T.log(T.abs_(sigma**2)) - (x - mu) ** 2 / (2 * sigma ** 2)
+
+def log_gaussian_logsigma(x, mu, logsigma):
+    return -0.5 * np.log(2 * np.pi) - logsigma / 2. - (x - mu) ** 2 / (2. * T.exp(logsigma))
+
 def get_random(shape, avg, std):
     return gpu_rnd.normal(shape, avg=avg, std=std)
 
@@ -49,16 +90,16 @@ if __name__ == '__main__':
     train_data = []
     test_data = []
     test_target = []
-    for i in range(0,len(data__),52):
-        train_data.append(data__[i:i+52])
-        train_target.append(data__[i:i+52])
+    for i in range(1,len(data__),1):
+        train_data.append(data__[i-1])
+        train_target.append(data__[i])
 
 
-    train_X = np.array(train_data).reshape((19,52))
-    train_y = np.array(train_target).reshape((19,52))
-    train_X = np.ones((19,52))
+    train_X = np.array(train_data).reshape((-1,1))
+    train_y = np.array(train_target).reshape((-1,1))
+    #train_X = np.ones((19,52))
     test_X =  train_X
-    train_y = np.ones((19,52))#np.repeat(2,19).reshape((10,1))
+    #train_y = np.ones((19,52))#np.repeat(2,19).reshape((10,1))
     test_y = train_y
 
     sigma_prior = T.exp(-3)
@@ -68,7 +109,7 @@ if __name__ == '__main__':
 
     # Layer's sizes
     x_size = train_X.shape[1]             # Number of input nodes: 4 features and 1 bias
-    h_size = 200                       # Number of hidden nodes
+    h_size = 2                    # Number of hidden nodes
     y_size = train_y.shape[1]             # Number of outcomes (3 iris flowers)
     w_1_mu = init_weights((x_size, h_size))  # Weight initializations
     w_1_sd = init_weights((x_size, h_size))
@@ -84,8 +125,9 @@ if __name__ == '__main__':
 
     # Forward propagation
     f_w_theta = 0
-    for samples in range(3):
-        epsilon_w1 = get_random((x_size, h_size), avg=0., std=1)
+    num_samps = 3
+    for samples in range(num_samps):
+        epsilon_w1 = get_random((x_size, h_size), avg=0., std=1.0/num_samps)
         epsilon_w2 = get_random((h_size, y_size), avg=0., std=1)
         w_1 = w_1_mu + T.log(1. + T.exp(w_1_sd))*epsilon_w1
         w_2 = w_2_mu + T.log(1. + T.exp(w_2_sd))*epsilon_w2
@@ -98,13 +140,18 @@ if __name__ == '__main__':
 
         h    = T.tanh(T.dot(X, w_1) +b_1)  # The \sigma function
         yhat = T.dot(h, w_2) + b_2 # The \varphi function
-        f_w_theta += log_gaussian(w_1,0,sigma_prior**.25).sum()
-        f_w_theta += log_gaussian(w_2,0,sigma_prior**.25).sum()
-
-        f_w_theta += - log_gaussian(w_1,w_1_mu,T.log(1. + T.exp(w_1_sd))).sum()
-        f_w_theta += - log_gaussian(w_2,w_2_mu,T.log(1. + T.exp(w_2_sd))).sum()
-        f_w_theta += - log_gaussian(Y,yhat,sigma_prior).sum()
-
+        f_w_theta += -log_gaussian(w_1,0,sigma_prior).sum()
+        f_w_theta += -log_gaussian(w_2,0,sigma_prior).sum()
+        f_w_theta += -log_gaussian(b_1,0,sigma_prior).sum()
+        f_w_theta += -log_gaussian(b_2,0,sigma_prior).sum()
+        f_w_theta += log_gaussian_logsigma(w_1, w_1_mu, w_1_sd * 2).sum()
+        f_w_theta += log_gaussian_logsigma(w_2, w_2_mu, w_2_sd * 2).sum()
+        f_w_theta += log_gaussian_logsigma(b_1, b_1_mu, b_1_sd * 2).sum()
+        f_w_theta += log_gaussian_logsigma(b_2, b_2_mu, b_2_sd * 2).sum()
+        #for mu, log_sigma in [(w_1_mu,w_1_sd),(w_2_mu,w_2_sd),(b_1_mu,b_1_sd),(b_2_mu,b_2_sd)]:
+     #   f_w_theta += 0.5 * T.sum(1 + T.log(log_sigma) - mu**2 - log_sigma)
+        f_w_theta += - log_gaussian(Y,yhat,1).sum()
+        f_w_theta = f_w_theta/(1.0*num_samps)
 
 
 
@@ -112,21 +159,24 @@ if __name__ == '__main__':
     cost    = f_w_theta.sum()
     params  = [w_1_mu,w_2_mu,w_1_sd,w_2_sd,b_1_mu,b_1_sd,b_2_mu,b_2_sd]
     #updates = backprop(cost, params)
-    updates = adam(cost, params, learning_rate=.001)
+    updates = adam(cost, params)
     # Train and predict
     train   = theano.function(inputs=[X, Y], outputs=cost, updates=updates, allow_input_downcast=True)
     pred_y  = yhat
-    predict = theano.function(inputs=[X], outputs=[w_1_mu,w_2_mu,b_1_mu,b_2_mu], allow_input_downcast=True,on_unused_input='ignore')
+    predict = theano.function(inputs=[X,Y], outputs=[w_1_mu,w_2_mu,b_1_mu,b_2_mu,cost], allow_input_downcast=True,on_unused_input='ignore')
     predict_val = theano.function(inputs=[X], outputs=[yhat], allow_input_downcast=True,on_unused_input='ignore')
 
     # Run SGD
     for iter in range(1000):
         for i in range(len(train_X)):
-            train(train_X[i: i + 1], train_y[i: i + 1])
-        w_1_mu,w_2_mu,b_1_mu,b_2_mu = predict(test_X)
-        tmp1 = np.dot(test_X[10],w_1_mu + b_1_mu)
+            local_cost = train(train_X[i: i + 1], train_y[i: i + 1])
+            #print ("local_cost",local_cost)
+        w_1_mu,w_2_mu,b_1_mu,b_2_mu,cost = predict(test_X,test_y)
+        tmp1 = np.dot(test_X,w_1_mu + b_1_mu)
         test_accuracy  =np.dot(np.tanh(tmp1),w_2_mu)+b_2_mu
-        if mean_squared_error(test_accuracy,test_X[10]) < .01:
-            break
-        print (iter,mean_squared_error(test_accuracy,test_X[10]))
-    print (test_accuracy)
+        print (iter)
+        #print (iter,mean_squared_error(test_accuracy,test_X[10]),cost/1000.0)
+    print (np.array(test_accuracy).shape)
+    plt.scatter(test_X,test_y,color='r')
+    plt.scatter(test_X,test_accuracy,color='b')
+    plt.show()
