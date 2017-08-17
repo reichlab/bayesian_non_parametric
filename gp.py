@@ -91,18 +91,18 @@ with pm.Model() as model:
     f_pred = pm.Deterministic('f_pred', tt.dot(K_s.T, tt.slinalg.solve(L.T, tt.slinalg.solve(L, f_sample))))
 
     # Use elliptical slice sampling
-    #ess_step = pm.EllipticalSlice(vars=[f_sample], prior_cov=K_stable)
-    #trace = pm.sample(20000, start=model.test_point, progressbar=True, random_seed=1)
-    s = theano.shared(pm.floatX(1))
-    inference = pm.ADVI(cost_part_grad_scale=s)
+    ess_step = pm.EllipticalSlice(vars=[f_sample], prior_cov=K_stable)
+    trace = pm.sample(20000, start=model.test_point,step=ess_step, progressbar=True, random_seed=1)
+   # s = theano.shared(pm.floatX(1))
+    #inference = pm.ADVI(cost_part_grad_scale=s)
     # ADVI has nearly converged
-    pm.fit(n=20000, method=inference)
+   # pm.fit(n=20000, method=inference)
     # It is time to set `s` to zero
-    s.set_value(0)
-    approx = pm.fit(n=30000)
+    #s.set_value(0)
+    #approx = pm.fit(n=30000)
 
-trace = approx.sample(draws=5000)
+#trace = approx.sample(draws=5000)
 
-print (mean_squared_error(trace['f_pred'].mean(axis=1),y_test))
+print (mean_squared_error(trace['f_pred'].mean(axis=0),y_test))
 
 
