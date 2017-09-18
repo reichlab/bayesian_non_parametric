@@ -67,7 +67,7 @@ X <- NULL
 max_lag <- 4
 for(lag_val in seq_len(max_lag)) {
   #  X <- cbind(lag(y, lag_val), X)
-  X <- cbind(lag((y + 1)/2, lag_val), X)
+  X <- cbind(c(rep(NA, lag_val), (y[seq_len(length(y) - lag_val)] + 1)/2), X)
 }
 non_na_inds <- apply(X, 1, function(Xrow) {!any(is.na(Xrow))})
 X <- X[non_na_inds, ]
@@ -83,7 +83,8 @@ ytest <- sin(xvec)
 Xtest <- NULL
 for(lag_val in seq_len(max_lag)) {
   #  Xtest <- cbind(lag(y, lag_val), Xtest)
-  Xtest <- cbind(lag((ytest + 1)/2, lag_val), Xtest)
+  Xtest <- cbind(c(rep(NA, lag_val), (ytest[seq_len(length(ytest) - lag_val)] + 1)/2), Xtest)
+#  Xtest <- cbind(lag((ytest + 1)/2, lag_val), Xtest)
 }
 non_na_inds <- apply(Xtest, 1, function(Xrow) {!any(is.na(Xrow))})
 Xtest <- Xtest[non_na_inds, , drop = FALSE]
