@@ -38,7 +38,7 @@ ggplot() +
 
 ### Y-J transformed and then centered
 ggplot() +
-  geom_point(aes(x = week_start_date, y = total_cases_yj_centerd), data = dengue_data)
+  geom_point(aes(x = week_start_date, y = total_cases_yj_centered), data = dengue_data)
 
 ggplot() +
   geom_density(aes(x = total_cases_yj_centered), data = dengue_data)
