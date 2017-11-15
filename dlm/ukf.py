@@ -18,8 +18,8 @@ end_run = int(sys.argv[3])
 
 X_train = np.transpose(np.array([data[0:start_run-3],data[1:start_run-2],data[2:start_run-1],data[3:start_run]]))
 y_train = np.array(data[n_ahead+3:start_run+n_ahead])
-X_test = np.transpose(np.array([data[start_run-3:end_run-3],data[start_run-2:end_run-2+],
-    data[start_run-1:end_run-1],data[start_run:end_run+52]]))
+X_test = np.transpose(np.array([data[start_run-3:end_run-3],data[start_run-2:end_run-2],
+    data[start_run-1:end_run-1],data[start_run:end_run]]))
 
 
 import pymc3 as pm
@@ -69,8 +69,6 @@ with model:
     delta_2 = pm.Normal('delta2', 0., 10., shape=K)
     delta_3 = pm.Normal('delta3', 0., 10., shape=K)
     delta_4 = pm.Normal('delta4', 0., 10., shape=K)
-
-
     mu = pm.Deterministic('mu', gamma + delta_1 * lag_1 + delta_2 * lag_2 + delta_3 * lag_3 + delta_4 * lag_4)
 
 
@@ -95,8 +93,10 @@ lag_4.set_value(X_test[0].reshape((-1,1)))
 lag_3.set_value(X_test[1].reshape((-1,1)))
 lag_2.set_value(X_test[2].reshape((-1,1)))
 lag_1.set_value(X_test[3].reshape((-1,1)))
-with model:
-    pp_trace = pm.sample_ppc(trace, PP_SAMPLES)
 
+with model:
+    pp_trace = pm.sample_ppc(trace, PP_SAMPLES,progressbar= False)
+
+#print (len(np.mean(pp_trace['obs'],axis=0)))
 myList = ','.join(map(str, np.mean(pp_trace['obs'],axis=0)))
-print (myList) 
+print (myList)
