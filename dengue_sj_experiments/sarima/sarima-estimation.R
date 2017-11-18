@@ -6,7 +6,7 @@ library(readr)
 ### TRAIN MODEL
 
 ## Load data for Dengue fever in San Juan
-data <- read_csv("dengue_sj_experiments/San_Juan_Training_Data.csv")
+data <- read_csv("San_Juan_Training_Data.csv")
 
 ## Restrict to data from 1990/1991 through 2004/2005 seasons
 train_seasons <- paste0(1990:2004, "/", 1991:2005)
@@ -43,7 +43,7 @@ seasonally_differenced_log_sarima_fit <-
 
 ### GET PREDICTIONS
 
-data <- read_csv("dengue_sj_experiments/San_Juan_Training_Data.csv")
+data <- read_csv("San_Juan_Training_Data.csv")
 
 ## Restrict to data from 1990/1991 through 2008/2009 seasons
 train_seasons <- paste0(1990:2008, "/", 1991:2009)
@@ -181,7 +181,10 @@ for(predictions_df_row_ind in sarima_inds) {
 
 predictions_df$ph <- as.factor(predictions_df$ph)
 
+
+
 ggplot() +
-	geom_line(aes(x = week_start_date, y = total_cases), data = data[data$season %in% c("2003/2004", "2004/2005", "2005/2006"),]) +
-	geom_line(aes(x = week_start_date, y = prediction), color = "red", data = predictions_df) +
+	geom_line(aes(x = week_start_date, y = total_cases), data = data.frame(week_start_date = predictions_df$week_start_date,total_cases=sanJuanDengueData[seq(781,(781+51))] )) +
+	geom_line(aes(x = week_start_date, y = prediction), color = "red", data = data.frame(week_start_date = predictions_df$week_start_date, prediction =  dp_preds)) +
+  geom_line(aes(x = week_start_date, y = prediction), color = "cornflowerblue", data = predictions_df) +
 	theme_bw()
