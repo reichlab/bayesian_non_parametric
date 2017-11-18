@@ -81,11 +81,22 @@ seasonally_differenced_log_prediction_target <-
 # 	last_obs_week=rep(seq_len(52) - 1, each = 52 * 3),
 # 	model="sarima",
 # 	stringsAsFactors=FALSE)
-predictions_df <- data.frame(ph=rep(seq_len(52), times = 1 * 1),
+sarima_ph <- 10
+predictions_df <- data.frame(ph=rep(sarima_ph, times = 1 * 1),
   last_obs_season=rep(c("2005/2006"), each = 52, times = 1),
-  last_obs_week=rep(0, each = 52 * 1),
+  last_obs_week=seq_len(52) - sarima_ph,
   model="sarima",
   stringsAsFactors=FALSE)
+inds_adj <- predictions_df$last_obs_week < 0
+predictions_df$last_obs_season[inds_adj] <- "2004/2005"
+predictions_df$last_obs_week[inds_adj] <- predictions_df$last_obs_week[inds_adj] + 52
+
+#predictions_df <- data.frame(ph=rep(seq_len(52), times = 1 * 1),
+#  last_obs_season=rep(c("2005/2006"), each = 52, times = 1),
+#  last_obs_week=rep(0, each = 52 * 1),
+#  model="sarima",
+#  stringsAsFactors=FALSE)
+
 predictions_df$prediction_season <- predictions_df$last_obs_season
 predictions_df$prediction_week <- predictions_df$last_obs_week + predictions_df$ph
 
