@@ -1,6 +1,7 @@
 library(lubridate)
 library(forecast)
 library(ggplot2)
+library(readr)
 
 ### TRAIN MODEL
 
@@ -89,7 +90,7 @@ predictions_df$prediction_season <- predictions_df$last_obs_season
 predictions_df$prediction_week <- predictions_df$last_obs_week + predictions_df$ph
 
 inds_last_obs_season_prev_year <- which(predictions_df$last_obs_week == 0)
-predictions_df$last_obs_season[inds_last_obs_season_prev_year] <- 
+predictions_df$last_obs_season[inds_last_obs_season_prev_year] <-
 	sapply(predictions_df$last_obs_season[inds_last_obs_season_prev_year],
 		function(next_season) {
 			start_year <- as.integer(substr(next_season, 1, 4)) - 1L
@@ -99,7 +100,7 @@ predictions_df$last_obs_season[inds_last_obs_season_prev_year] <-
 predictions_df$last_obs_week[inds_last_obs_season_prev_year] <- 52L
 
 inds_prediction_season_next_year <- which(predictions_df$prediction_week > 52)
-predictions_df$prediction_season[inds_prediction_season_next_year] <- 
+predictions_df$prediction_season[inds_prediction_season_next_year] <-
 	sapply(predictions_df$prediction_season[inds_prediction_season_next_year],
 		function(next_season) {
 			start_year <- as.integer(substr(next_season, 1, 4)) + 1L
@@ -130,10 +131,10 @@ for(predictions_df_row_ind in sarima_inds) {
 	ph <- as.numeric(predictions_df$ph[predictions_df_row_ind])
 	last_obs_ind <- which(data$season == predictions_df$last_obs_season[predictions_df_row_ind] &
 		data$season_week == predictions_df$last_obs_week[predictions_df_row_ind])
-	
+
 	predictions_df$week_start_date[predictions_df_row_ind] <- data$week_start_date[last_obs_ind + as.numeric(ph)]
-	
-	
+
+
 #	new_data <- ts(log(San_Juan_test$total_cases[seq_len(last_obs_ind)] + 1), frequency = 52)
 #	updated_sj_log_sarima_fit <- Arima(new_data, model = sj_log_sarima_fit)
 
@@ -142,12 +143,12 @@ for(predictions_df_row_ind in sarima_inds) {
 	seasonal_diff_new_data <- ts(new_data[seq(from = 53, to = length(new_data))] -
 	    new_data[seq(from = 1, to = length(new_data) - 52)], frequency = 52)
 	updated_sj_log_sarima_fit <- Arima(seasonal_diff_new_data, model = seasonally_differenced_log_sarima_fit)
-	
+
 	predict_result <- predict(updated_sj_log_sarima_fit, n.ahead = ph)
-	
+
 #	predictive_log_mean <- as.numeric(predict_result$pred[ph])
 #	predictions_df$prediction[predictions_df_row_ind] <- exp(predictive_log_mean) - 1
-	
+
 	predictive_log_mean <- as.numeric(predict_result$pred[ph]) + new_data[last_obs_ind + ph - 52]
 	predictions_df$prediction[predictions_df_row_ind] <- exp(as.numeric(predict_result$pred[ph]) + new_data[last_obs_ind + ph - 52]) - 1
 
@@ -159,7 +160,7 @@ for(predictions_df_row_ind in sarima_inds) {
 		meanlog = predictive_log_mean,
 		sdlog = as.numeric(predict_result$se[ph]),
 		log = TRUE)
-	
+
 	temp <- qlnorm(c(0.05, 0.25, 0.75, 0.95),
 		meanlog = predictive_log_mean,
 		sdlog = as.numeric(predict_result$se[ph]))
@@ -167,13 +168,9 @@ for(predictions_df_row_ind in sarima_inds) {
 		temp - 1
 }
 
-predictions_df <- predictions_df[predictions_df$week_start_date %in% data$week_start_date[San_Juan_test$season %in% c("2009/2010", "2010/2011", "2011/2012", "2012/2013")], ]
-
 predictions_df$ph <- as.factor(predictions_df$ph)
 
 ggplot() +
 	geom_line(aes(x = week_start_date, y = total_cases), data = data[data$season %in% c("2003/2004", "2004/2005", "2005/2006"),]) +
 	geom_line(aes(x = week_start_date, y = prediction), color = "red", data = predictions_df) +
 	theme_bw()
-
-
