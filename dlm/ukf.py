@@ -60,7 +60,7 @@ def stick_breaking(v):
 
 
 #N = len(X_train)
-K = 20
+K = 40
 #D = 10
 #ntd_vector = raw counts of delays in a matrix of size N x D
 
@@ -100,12 +100,12 @@ with model:
     #N_tinf = pm.Poisson('ntinft',lambda=obs)
     #N_td = pm.Multinomial('ntd',n=N_tinf,p=p_vector,observed=ntd_vector)
 
-SAMPLES = 20000
-BURN = 10000
+SAMPLES = 2000
+BURN = 1000
 
 with model:
     step = pm.Metropolis()
-    trace = pm.sample(SAMPLES, step, tune=BURN,progressbar=False)
+    trace = pm.sample(SAMPLES, step, tune=BURN, progressbar=False)
 
 
 PP_SAMPLES = 5000
