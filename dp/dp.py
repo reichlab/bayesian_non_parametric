@@ -21,17 +21,14 @@ from pymc3.math import logsumexp
 
 
 X_train = \
-    np.loadtxt(open("/Users/gcgibson/Desktop/bayesian_non_parametric/X_train.csv", "rb"), delimiter=",", skiprows=1)
+    np.loadtxt(open("/Users/gcgibson/Desktop/bayesian_non_parametric/X_train.csv", "rb"), delimiter=",", skiprows=0)
 
 y_train = \
-    np.loadtxt(open("/Users/gcgibson/Desktop/bayesian_non_parametric/y_train.csv", "rb"), delimiter=",", skiprows=1)
+    np.loadtxt(open("/Users/gcgibson/Desktop/bayesian_non_parametric/y_train.csv", "rb"), delimiter=",", skiprows=0)
 
 
 X_test = \
-    np.loadtxt(open("/Users/gcgibson/Desktop/bayesian_non_parametric/X_test.csv", "rb"), delimiter=",", skiprows=1)
-
-
-
+    np.loadtxt(open("/Users/gcgibson/Desktop/bayesian_non_parametric/X_test.csv", "rb"), delimiter=",", skiprows=0)
 
 
 def norm_cdf(z):

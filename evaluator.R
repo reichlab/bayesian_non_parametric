@@ -11,7 +11,7 @@ n_ahead <- 10
 last_training_point <- 780
 max_lag_val <- 4
 
-target <- sanJuanDengueData[seq((last_training_point+1),(last_training_point+1+50))]
+target <- sanJuanDengueData[seq((last_training_point+1),(last_training_point+1+51))]
 
 #kcdeForecasts <- train_and_predict_kcde(sanJuanDengueData,n_ahead,last_training_point,max_lag_val)
 dlmForecasts <- train_and_predict_dlm(sanJuanDengueData,n_ahead,last_training_point)
