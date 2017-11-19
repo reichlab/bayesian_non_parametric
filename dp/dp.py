@@ -21,11 +21,16 @@ from pymc3.math import logsumexp
 
 
 X_train = \
-    numpy.loadtxt(open("/Users/gcgibson/Desktop/bayesian_non_parmateric/X_train.csv", "rb"), delimiter=",", skiprows=1)
+    np.loadtxt(open("/Users/gcgibson/Desktop/bayesian_non_parametric/X_train.csv", "rb"), delimiter=",", skiprows=1)
+
+y_train = \
+    np.loadtxt(open("/Users/gcgibson/Desktop/bayesian_non_parametric/y_train.csv", "rb"), delimiter=",", skiprows=1)
 
 
-print (X_train.shape)
-sys.exit()
+X_test = \
+    np.loadtxt(open("/Users/gcgibson/Desktop/bayesian_non_parametric/X_test.csv", "rb"), delimiter=",", skiprows=1)
+
+
 
 
 
