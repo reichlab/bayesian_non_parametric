@@ -23,7 +23,7 @@ lagged_4 <- cbind(sanJuanDengueData[seq(1,(last_training_point-n_ahead-max_lag_v
 bw <- npcdensbw(
   xdat = lagged_4,
   ydat = matrix(sanJuanDengueData[seq(max_lag_val+n_ahead,last_training_point)],ncol=1),
-  nmulti = 1,
+  nmulti = 2,
   remin = FALSE,
   bwtype = "adaptive_nn",
   bwmethod = "cv.ml")
@@ -37,7 +37,7 @@ get_discrete_prob_from_np <- function(X, y, bw) {
     bws = bw))
 }
 
-val_grid <- seq(from = -1, to = 100, by = 1)
+val_grid <- seq(from = -1, to = 100, by = .5)
 
 X_test <- cbind(
   sanJuanDengueData[seq(last_training_point-max_lag_val-n_ahead+1+1,last_training_point-max_lag_val-n_ahead+1+51+1)],
