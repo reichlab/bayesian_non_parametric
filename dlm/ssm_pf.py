@@ -165,16 +165,18 @@ plt.plot(20000*np.array(estimated_states)[:,1])
 plt.show()
 
 
-n_ahead = 10
-
-pred_states = [np.array(estimated_states[-1]).reshape((1,-1))]
-for i in range(n_ahead):
-    pred_states.append(predict(pred_states[i],i+len(time_series)))
+n_ahead = 52
+predictions = np.zeros(n_ahead+1)
+num_sim = 1000
+for sim in range(1000):
+    pred_states = [np.array(estimated_states[-1]).reshape((1,-1))]
+    for i in range(n_ahead):
+        pred_states.append(predict(pred_states[i],i+len(time_series)))
+        
+    predictions += 20000*np.array(pred_states)[:,0,1]
+        
     
-predictions = 20000*np.array(pred_states)[:,0,1]
-    
-    
-plt.plot(predictions)
+plt.plot(predictions/num_sim)
 plt.show()
     
     
