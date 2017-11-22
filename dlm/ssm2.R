@@ -30,14 +30,14 @@ true_data <- rep(10,t_max)
 log_prec_y_true = log(1) # True value used to sample the data
 data = list(t_max=t_max, y = true_data,prec_x_init=prec_x_init,
             prec_x=prec_x, 
-            mean_x_init=c(100.0,10.0,10.0))
+            mean_x_init=c(1000.0,10.0,10.0))
 
 sample_data = FALSE # Boolean
 model = biips_model(model_file, data, sample_data=sample_data) # Create Biips model and sample data
 
 data = model$data()
 n_part = 10000 # Number of particles
-variables = c('x') # Variables to be monitored
+variables = c('x','y') # Variables to be monitored
 mn_type = 'fs'; rs_type = 'stratified'; rs_thres = 0.5 # Optional parameters
 
 
@@ -45,16 +45,11 @@ mn_type = 'fs'; rs_type = 'stratified'; rs_thres = 0.5 # Optional parameters
 out_smc = biips_smc_samples(model, variables, n_part,
                             type=mn_type, rs_type=rs_type, rs_thres=rs_thres)
 diag_smc = biips_diagnosis(out_smc)
+summ_smc = biips_summary(out_smc, probs=c(.025, .975))
+
+
 x_f_mean = summ_smc$x$f$mean
 x_f_quant = summ_smc$x$f$quant
 
-xx = c(1:t_max, t_max:1)
-yy = c(x_f_quant[[1]], rev(x_f_quant[[2]]))
-plot(xx, yy, type='n', xlab='Time', ylab='x')
 
-polygon(xx, yy, col=light_blue, border=NA)
-lines(1:t_max, x_f_mean, col='blue', lwd=3)
-lines(1:t_max, data$x_true, col='green', lwd=2)
-legend('topright', leg=c('95% credible interval', 'Filtering mean estimate', 'True value'),
-       col=c(light_blue,'blue','green'), lwd=c(NA,3,2), pch=c(15,NA,NA), pt.cex=c(2,1,1),
-       bty='n')
+filtered_states = 2000*x_f_mean[2,]
