@@ -37,6 +37,38 @@ sample_data = FALSE # Boolean
 model = biips_model(model_file, data, sample_data=sample_data) # Create Biips model and sample data
 
 data = model$data()
+### PMMH
+n_burn = 2000 # nb of burn-in/adaptation iterations
+n_iter = 2000 # nb of iterations after burn-in
+thin = 1 # thinning of MCMC outputs
+n_part = 50 # nb of particles for the SMC
+param_names = c('beta','gamma') # name of the variables updated with MCMC (others are updated with SMC)
+latent_names = c('x') # name of the variables updated with SMC and that need to be monitored
+
+
+obj_pmmh = biips_pmmh_init(model, param_names, inits=list(beta=.9,gamma=.1),
+                           latent_names=latent_names) # creates a pmmh object
+biips_pmmh_update(obj_pmmh, n_burn, n_part) # adaptation and burn-in iterations
+
+out_pmmh = biips_pmmh_samples(obj_pmmh, n_iter, n_part, thin=thin) # samples
+
+summ_pmmh = biips_summary(out_pmmh, probs=c(.025, .975))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### PARTICLE FILTER
 n_part = 10000 # Number of particles
 variables = c('x','y') # Variables to be monitored
 mn_type = 'fs'; rs_type = 'stratified'; rs_thres = 0.5 # Optional parameters
