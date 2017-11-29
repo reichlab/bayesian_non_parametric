@@ -1,3 +1,12 @@
+
+
+f_eval <- function( k,alpha) { 
+    return (alpha[(k%/%52)+1])
+  }
+f_dim <- function(x_dim, k_dim) { 1 }
+
+
+
 require(rbiips)
 library(MCMCpack)
 
@@ -9,6 +18,13 @@ cat(readLines(model_file), sep = "\n")
 par(bty='l')
 light_blue = rgb(.7, .7, 1)
 light_red = rgb(1, .7, .7)
+
+fun_bugs = 'fext'; fun_nb_inputs = 2
+fun_dim = f_dim; fun_eval = f_eval
+biips_add_function(fun_bugs, fun_nb_inputs, fun_dim, fun_eval)
+
+
+
 
 t_max = 780
 mean_x_init = 1
@@ -44,18 +60,6 @@ summ_pmmh = biips_summary(out_pmmh, probs=c(.025, .975))
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 ### PARTICLE FILTER
 n_part = 10000 # Number of particles
 variables = c('x','y') # Variables to be monitored
@@ -73,18 +77,4 @@ x_f_mean = summ_smc$x$f$mean
 x_f_quant = summ_smc$x$f$quant
 
 
-filtered_states = 2000*x_f_mean[2,]
-last_state = tail(t(x_f_mean),n=1)
 
-
-forecasts <- c()
-for (i in seq(1,52)){
-  last_state[1] = last_state[1] +1/6*(-2*last_state[1]*last_state[2])
-  last_state[2] =last_state[2]+ 1/6*(2*last_state[1]*last_state[2]-1.4*last_state[2])
-  last_state[3] = last_state[3] + 1/6*(1.4*last_state[2])
-  last_state <- rdirichlet(1,1e4*last_state)
-  forecasts <- c(forecasts,last_state[2])
-}
-
-forecasts <- 2000*forecasts
-plot(forecasts)
