@@ -1,17 +1,21 @@
 var x[3,t_max], y[t_max]
+
+
+
+
+
 model
 {
-  x[,1] ~ ddirch(mean_x_init[1],mean_x_init[2],mean_x_init[3])
-  y[1] ~ dpois( x[2,1]*2000)
-  beta ~ dunif(0.000001,.9999 )
-  gamma ~ dunif(0.000001,.9999 )
+  x[,1] ~ dmultinom(mean_x_init[1],mean_x_init[2],mean_x_init[3])
+  y[1] ~ dpois(20000* x[2,1])
+
   for (t in 2:t_max)
   {
-    x[,t] ~ ddirch(
-    x[1,t-1]+ 1/6*(-beta*x[1,t-1]*x[2,t-1]),
-    x[2,t-1]+ 1/6*(beta*x[1,t-1]*x[2,t-1]-gamma*x[2,t-1]),
-    x[3,t-1]+ 1/6*(gamma*x[2,t-1])
-    )
-    y[t] ~ dpois( x[2,t]*2000)
+    x[,t] ~ dmultinom(
+    x[1,t-1],
+    x[2,t-1],
+    x[3,t-1])
+    
+    y[t] ~ dpois(20000*x[2,t])
   }
 }
