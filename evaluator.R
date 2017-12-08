@@ -63,3 +63,10 @@ mse_results[idx,"dlmForecast"] <- sum(as.numeric(mse_results[1:(nrow(mse_results
 
 write.table(mse_results,"mse_results.csv")
 
+mse_results_df <- as.data.frame(as.numeric(mse_results))
+
+
+
+library(ggplot2)
+ggplot(mse_results_df[which(mse_results_df$last_training_point=="156"),],aes(x=n_ahead,y=dpForecast)) +geom_point()
+
