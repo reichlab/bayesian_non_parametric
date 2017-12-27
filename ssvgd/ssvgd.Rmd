@@ -68,7 +68,28 @@ Define $\theta = (\xi, \zeta)$ to be the full set of model parameters.
 
 SVGD can be used to estimate a (continuous only?) distribution (as a mixture of normals?  Is that right?).  It requires as inputs a set of initial values for centers of the normals (?  or are they just particles?) and a gradient of the density at a particular particle/center point.
 
-## Filtering Method
+## Filtering
+
+There are two types of filtering:
+
+1. sample of particles $x_{1:T}^{(k)} \sim f(x_{1:T} | y_{1:T})$
+2. sample of particles $x_{t}^{(k)} \sim f(x_{t} | y_{1:t})$ for each $t = 1, \ldots, T$
+
+Let's look at the second one.  Assume we have a sample $x_{t-1}^{(k)} \sim f(x_{t-1} | y_{1:t-1})$
+
+\begin{align*}
+p(x_{t} | y_{1:t}) &= \frac{f(x_t, y_t | y_{1:t-1})}{f(y_t | y_{1:t-1})} \\
+ &\propto f(x_t, y_t | y_{1:t-1}) \\
+ &= f(y_t | x_t) f(x_t | y_{1:t-1}) \\
+ &= f(y_t | x_t) \int f(x_t, x_{t-1} | y_{1:t-1}) d x_{t-1} \\
+ &= f(y_t | x_t) \int f(x_t | x_{t - 1}) f(x_{t-1} | y_{1:{t-1}}) dx_{t-1} \\
+ &\approx f(y_t | x_t) \sum_{x_{t-1}^{(k)}} f(x_t | x_{t - 1}^{(k)})
+\end{align*}
+
+So $\log\{p(x_{t} | y_{1:t})\}$ is approximately proportional to $\log\{f(y_t | x_t)\} + \log\{\sum_{x_{t-1}^{(k)}} f(x_t | x_{t - 1}^{(k)})\}$
+
+
+## Evaluating the Likelihood via Filtering
 
 Our goal (for now) is to evaluate the likelihood function
 
