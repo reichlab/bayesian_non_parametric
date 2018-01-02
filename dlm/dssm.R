@@ -1,4 +1,3 @@
-library(tmvtnorm)
 library(ggplot2)
 library(Metrics)
 SJdat<-read.csv("http://dengueforecasting.noaa.gov/Training/San_Juan_Training_Data.csv")
