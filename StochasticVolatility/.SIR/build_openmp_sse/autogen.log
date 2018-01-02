@@ -1,0 +1,5 @@
+aclocal: warning: couldn't open directory 'm4': No such file or directory
+configure.ac:144: installing './compile'
+configure.ac:4: installing './install-sh'
+configure.ac:4: installing './missing'
+Makefile.am: installing './depcomp'

@@ -1,0 +1,101 @@
+configure: WARNING: unrecognized options: --disable-cuda-fast-math, --disable-timing
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking for a thread-safe mkdir -p... ./install-sh -c -d
+checking for gawk... no
+checking for mawk... no
+checking for nawk... no
+checking for awk... awk
+checking whether make sets $(MAKE)... yes
+checking whether make supports nested variables... yes
+checking for icpc... no
+checking for g++... g++
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether g++ accepts -g... yes
+checking for g++ option to accept ISO C89... unsupported
+checking whether g++ understands -c and -o together... yes
+checking for style of include used by make... GNU
+checking dependency style of g++... gcc3
+checking how to run the C preprocessor... g++ -E
+checking for icpc... no
+checking for g++... g++
+checking whether we are using the GNU C++ compiler... yes
+checking whether g++ accepts -g... yes
+checking dependency style of g++... gcc3
+checking how to run the C++ preprocessor... g++ -E
+checking for nvcc... nvcc
+checking for ranlib... ranlib
+checking for omp.h... no
+checking for main in -lm... yes
+checking for main in -lgfortran... no
+checking for library containing mkl_blas_dgemv... no
+checking for mkl_blas_dgemv in -lmkl_sequential... no
+checking for mkl_blas_dgemv in -lmkl_core... no
+checking for main in -latlas... no
+checking for library containing cblas_dgemv... -lcblas
+checking for library containing dgemv_... none required
+checking for library containing dpotrf_... -llapack
+checking for dch1dn_ in -lqrupdate... yes
+checking for main in -lgsl... yes
+checking for main in -lnetcdf... yes
+checking for main in -lprofiler... no
+checking for pow... yes
+checking for sqrt... yes
+checking for exp... yes
+checking for log... yes
+checking whether to enable assertions... no
+checking for netcdf.h... yes
+checking for mkl_cblas.h... no
+checking for cblas.h... no
+checking for gsl/gsl_cblas.h... yes
+checking for boost/mpl/if.hpp... yes
+checking for boost/random/binomial_distribution.hpp... yes
+checking for boost/random/bernoulli_distribution.hpp... yes
+checking for boost/random/gamma_distribution.hpp... yes
+checking for boost/random/mersenne_twister.hpp... yes
+checking for boost/random/normal_distribution.hpp... yes
+checking for boost/random/poisson_distribution.hpp... yes
+checking for boost/random/uniform_int.hpp... yes
+checking for boost/random/uniform_real.hpp... yes
+checking for boost/random/variate_generator.hpp... yes
+checking for boost/typeof/typeof.hpp... yes
+checking for thrust/adjacent_difference.h... yes
+checking for thrust/binary_search.h... yes
+checking for thrust/copy.h... yes
+checking for thrust/device_ptr.h... yes
+checking for thrust/distance.h... yes
+checking for thrust/extrema.h... yes
+checking for thrust/fill.h... yes
+checking for thrust/for_each.h... yes
+checking for thrust/functional.h... yes
+checking for thrust/gather.h... yes
+checking for thrust/inner_product.h... yes
+checking for thrust/iterator/counting_iterator.h... yes
+checking for thrust/iterator/detail/normal_iterator.h... yes
+checking for thrust/iterator/discard_iterator.h... yes
+checking for thrust/iterator/permutation_iterator.h... yes
+checking for thrust/iterator/transform_iterator.h... yes
+checking for thrust/iterator/zip_iterator.h... yes
+checking for thrust/logical.h... yes
+checking for thrust/reduce.h... yes
+checking for thrust/scan.h... yes
+checking for thrust/sequence.h... yes
+checking for thrust/sort.h... yes
+checking for thrust/transform.h... yes
+checking for thrust/transform_reduce.h... yes
+checking for thrust/transform_scan.h... yes
+checking for thrust/tuple.h... yes
+checking for gsl/gsl_multimin.h... yes
+checking for stdbool.h that conforms to C99... no
+checking for _Bool... no
+checking for inline... inline
+checking that generated files are newer than configure... done
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: executing depfiles commands
+configure: WARNING: unrecognized options: --disable-cuda-fast-math, --disable-timing
