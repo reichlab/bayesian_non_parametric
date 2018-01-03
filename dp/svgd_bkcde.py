@@ -29,8 +29,8 @@ X_test = \
 
 
 
-X_train = X_train[:10]
-y_train = y_train[:10]
+X_train = X_train
+y_train = y_train
 
 
 
