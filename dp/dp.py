@@ -30,6 +30,13 @@ y_train = \
 X_test = \
     np.loadtxt(open("/Users/gcgibson/Desktop/bayesian_non_parametric/tmp_data/X_test.csv", "rb"), delimiter=",", skiprows=0)
 
+X_train = X_train[:10,:]
+y_train = y_train[:10]
+X_test = X_test[:10,:]
+
+print (X_train.shape)
+print (y_train.shape)
+print (X_test.shape)
 
 def norm_cdf(z):
     return 0.5 * (1 + tt.erf(z / np.sqrt(2)))
@@ -48,7 +55,7 @@ K = len(X_train)
 
 def gaussian_kernel_2d(x,y,h):
     mat = h*np.eye(len(X_train))
-    precision_mat = tt.nlinalg.MatrixInverse(mat)
+    precision_mat = tt.nlinalg.matrix_inverse(mat)
     tmp = tt.dot(tt.dot(tt.transpose(x-y),precision_mat),(x-y))
     return 1.0/(tt.sqrt(tt.nlinalg.det(2*np.pi*mat)))*tt.exp(-.5*tmp)
 
@@ -103,6 +110,8 @@ lag_4.set_value(X_test[0].reshape((-1,1)))
 lag_3.set_value(X_test[1].reshape((-1,1)))
 lag_2.set_value(X_test[2].reshape((-1,1)))
 lag_1.set_value(X_test[3].reshape((-1,1)))
+
+total_data.set_value(X_test)
 
 with model:
     pp_trace = pm.sample_ppc(trace, PP_SAMPLES,progressbar= False)
