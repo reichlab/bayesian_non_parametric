@@ -1,1 +1,1 @@
-repo_path <- "/Users/gcgibson/Desktop/bayesian_non_parametric"
+repo_path <- "/home/gcgibson/Desktop/bayesian_non_parametric"

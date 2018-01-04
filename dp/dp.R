@@ -1,5 +1,5 @@
 
-Sys.setenv(PATH = paste("/Users/gcgibson/anaconda/bin", Sys.getenv("PATH"), sep=":"))
+#Sys.setenv(PATH = paste("/Users/gcgibson/anaconda/bin", Sys.getenv("PATH"), sep=":"))
 
 
 train_and_predict_dp <- function(sanJuanDengueData,n_ahead,last_training_point,max_lag_val){
@@ -14,19 +14,19 @@ train_and_predict_dp <- function(sanJuanDengueData,n_ahead,last_training_point,m
     
     y_train <- matrix(sanJuanDengueData[seq(max_lag_val+n_ahead,last_training_point)],ncol=1)
     
-    write.table(X_train, file = "/Users/gcgibson/Desktop/bayesian_non_parametric/X_train.csv", append = FALSE, quote = FALSE, sep = ",",
+    write.table(X_train, file = "/home/gcgibson/Desktop/bayesian_non_parametric/X_train.csv", append = FALSE, quote = FALSE, sep = ",",
                 eol = "\n", na = "NA", dec = ".", row.names = FALSE,
                 col.names = FALSE, qmethod = c("escape", "double"))
     
-    write.table(y_train, file = "/Users/gcgibson/Desktop/bayesian_non_parametric/y_train.csv", append = FALSE, quote = FALSE, sep = ",",
+    write.table(y_train, file = "/home/gcgibson/Desktop/bayesian_non_parametric/y_train.csv", append = FALSE, quote = FALSE, sep = ",",
                 eol = "\n", na = "NA", dec = ".", row.names = FALSE,
                 col.names = FALSE, qmethod = c("escape", "double"))
     
-    write.table(X_test, file = "/Users/gcgibson/Desktop/bayesian_non_parametric/X_test.csv", append = FALSE, quote = FALSE, sep = ",",
+    write.table(X_test, file = "/home/gcgibson/Desktop/bayesian_non_parametric/X_test.csv", append = FALSE, quote = FALSE, sep = ",",
                 eol = "\n", na = "NA", dec = ".", row.names = FALSE,
                 col.names = FALSE, qmethod = c("escape", "double"))
     Sys.sleep(30)
-    exec_str <- 'python /Users/gcgibson/Desktop/bayesian_non_parametric/dp/dp.py'
+    exec_str <- 'python /home/gcgibson/Desktop/bayesian_non_parametric/dp/dp.py'
     dpForecasts <- system(exec_str,intern=TRUE,wait = TRUE)
     dpForecasts <- strsplit(dpForecasts,",")
     dpForecasts <- as.numeric(unlist(dpForecasts))

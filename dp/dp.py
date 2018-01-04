@@ -21,22 +21,18 @@ from pymc3.math import logsumexp
 
 
 X_train = \
-    np.loadtxt(open("/Users/gcgibson/Desktop/bayesian_non_parametric/tmp_data/X_train.csv", "rb"), delimiter=",", skiprows=0)
+    np.loadtxt(open("/home/gcgibson/Desktop/bayesian_non_parametric/tmp_data/X_train.csv", "rb"), delimiter=",", skiprows=0)
 
 y_train = \
-    np.loadtxt(open("/Users/gcgibson/Desktop/bayesian_non_parametric/tmp_data/y_train.csv", "rb"), delimiter=",", skiprows=0)
+    np.loadtxt(open("/home/gcgibson/Desktop/bayesian_non_parametric/tmp_data/y_train.csv", "rb"), delimiter=",", skiprows=0)
 
 
 X_test = \
-    np.loadtxt(open("/Users/gcgibson/Desktop/bayesian_non_parametric/tmp_data/X_test.csv", "rb"), delimiter=",", skiprows=0)
+    np.loadtxt(open("/home/gcgibson/Desktop/bayesian_non_parametric/tmp_data/X_test.csv", "rb"), delimiter=",", skiprows=0)
 
-X_train = X_train[:10,:]
-y_train = y_train[:10]
-X_test = X_test[:10,:]
 
-print (X_train.shape)
-print (y_train.shape)
-print (X_test.shape)
+
+
 
 def norm_cdf(z):
     return 0.5 * (1 + tt.erf(z / np.sqrt(2)))
@@ -63,17 +59,23 @@ def gaussian_kernel_2d(x,y,h):
 
 X_train = np.transpose(X_train)
 
-lag_4 = shared(X_train[0].reshape((-1,1)), broadcastable=(False, True))
-lag_3 = shared(X_train[1].reshape((-1,1)), broadcastable=(False, True))
-lag_2 = shared(X_train[2].reshape((-1,1)), broadcastable=(False, True))
-lag_1 = shared(X_train[3].reshape((-1,1)), broadcastable=(False, True))
+lag_4 = shared(X_train[0,:].reshape((-1,1)), broadcastable=(False, True))
+lag_3 = shared(X_train[1,:].reshape((-1,1)), broadcastable=(False, True))
+lag_2 = shared(X_train[2,:].reshape((-1,1)), broadcastable=(False, True))
+lag_1 = shared(X_train[3,:].reshape((-1,1)), broadcastable=(False, True))
 
 total_data = shared(X_train)
 
 
 with pm.Model() as model:
     
-    v = gaussian_kernel_2d(total_data,total_data,1)
+   # v = gaussian_kernel_2d(total_data,total_data,1)
+    alpha = pm.Normal('alpha', 0., 5., shape=K)
+    beta_1 = pm.Normal('beta1', 0., 5., shape=K)
+    beta_2 = pm.Normal('beta2', 0., 5., shape=K)
+    beta_3 = pm.Normal('beta3', 0., 5., shape=K)
+    beta_4 = pm.Normal('beta4', 0., 5., shape=K)
+    v = norm_cdf(alpha + beta_1 * lag_1 + beta_2 * lag_2 + beta_3 * lag_3 + beta_4 * lag_4)
     w = pm.Deterministic('w', stick_breaking(v))
 
 
