@@ -1,10 +1,13 @@
 library(Metrics)
-source("/home/gcgibson/Desktop/bayesian_non_parametric/config.R")
+source("/Users/gcgibson/bayesian_non_parametric/config.R")
 print(repo_path)
+repo_path = "/Users/gcgibson/bayesian_non_parametric"
 #source(paste(repo_path,"/kcde/kcde.R",sep=""))
 #source(paste(repo_path,"/dlm/dengue_dlm.R",sep=""))
 #source(paste(repo_path,"/dengue_sj_experiments/sarima/sarima-estimation.R",sep=""))
 source(paste(repo_path,"/dp/dp.R",sep=""))
+source(paste(repo_path,"/dp/bnn.R",sep=""))
+
 source(paste(repo_path,"/dlm/dssm.R",sep=""))
 source(paste(repo_path,"/sarima/sarima_naive.R",sep=""))
 
@@ -16,7 +19,7 @@ n_aheads <- c(1,5,10)
 
 
 
-cnames <- c("data", "n_ahead", "last_training_point","ssmForecast","kcdeForecast", "dpForecast", "sarimaForecast", "nSarimaForecast", "dlmForecast")
+cnames <- c("data", "n_ahead", "last_training_point","ssmForecast","kcdeForecast", "dpForecast","bnnForecast", "sarimaForecast", "nSarimaForecast", "dlmForecast")
 results <- matrix(NA,
                   nrow = length(n_aheads)*length(last_training_points)*52,
                   ncol = length(cnames))
@@ -37,13 +40,14 @@ for (n_ahead in n_aheads){
    #results[running_idx,"sarimaForecast"] <- train_and_predict_SARIMA()
    results[running_idx,"nSarimaForecast"] <- train_and_predict_naive_sarima(sanJuanDengueData = sanJuanDengueData, last_training_point = last_training_point,n_ahead = n_ahead)
    results[running_idx,"dpForecast"] <- train_and_predict_dp(sanJuanDengueData,n_ahead,last_training_point,max_lag_val)
-
+   results[running_idx,"bnnForecast"] <- train_and_predict_bnn(sanJuanDengueData,n_ahead,last_training_point,max_lag_val)
+   
    idx <- max(running_idx)+1
  }
 }
 
 
-cnames <- c( "n_ahead", "last_training_point","ssmForecast", "kcdeForecast", "dpForecast", "sarimaForecast", "nSarimaForecast", "dlmForecast")
+cnames <- c( "n_ahead", "last_training_point","ssmForecast", "kcdeForecast", "dpForecast","bnnForecast", "sarimaForecast", "nSarimaForecast", "dlmForecast")
 
 
 mse_results <- matrix(NA,
@@ -54,6 +58,8 @@ colnames(mse_results) <-cnames
 idx <- 1
 for (r in seq(0,nrow(results)-52,by=52)){
   mse_results[idx,"dpForecast"] <- mse(results[r:(r+52),"data"],results[r:(r+52),"dpForecast"])
+  mse_results[idx,"bnnForecast"] <- mse(results[r:(r+52),"data"],results[r:(r+52),"bnnForecast"])
+  
 #  mse_results[idx,"sarimaForecast"] <- mse(results[r:(r+52),"data"],results[r:(r+52),"sarimaForecast"])
 #  mse_results[idx,"dlmForecast"] <- mse(results[r:(r+52),"data"],results[r:(r+52),"dlmForecast"])
  # mse_results[idx,"ssmForecast"] <- mse(results[r:(r+52),"data"],results[r:(r+52),"ssmForecast"])
@@ -68,6 +74,8 @@ for (r in seq(0,nrow(results)-52,by=52)){
 mse_results[idx,"n_ahead"] <- "TOTAL"
 mse_results[idx,"last_training_point"] <- "TOTAL"
 mse_results[idx,"dpForecast"] <- sum(as.numeric(mse_results[1:(nrow(mse_results)-1),"dpForecast"]))
+mse_results[idx,"bnnForecast"] <- sum(as.numeric(mse_results[1:(nrow(mse_results)-1),"bnnForecast"]))
+
 #mse_results[idx,"sarimaForecast"] <- sum(as.numeric(mse_results[1:(nrow(mse_results)-1),"sarimaForecast"]))
 #mse_results[idx,"dlmForecast"] <- sum(as.numeric(mse_results[1:(nrow(mse_results)-1),"dlmForecast"]))
 #mse_results[idx,"ssmForecast"] <- sum(as.numeric(mse_results[1:(nrow(mse_results)-1),"ssmForecast"]))
